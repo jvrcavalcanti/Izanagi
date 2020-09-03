@@ -1,6 +1,5 @@
 <?php
 
-use Accolon\Izanagi\Connection;
 use App\Models\User;
 
 function autoload($dir = "./")
@@ -34,5 +33,5 @@ define("DB_CONFIG", [
     'driver' => "sqlite"
 ]);
 
-$user = new User();
-var_dump($user->getModelName());
+$user = new User("Test");
+var_dump($user->getFields());

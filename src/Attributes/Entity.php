@@ -1,9 +1,9 @@
 <?php
 
-namespace Accolon\Izanagi;
+namespace Accolon\Izanagi\Attributes;
 
 @@Attribute
-class Model
+class Entity
 {
     public function __construct(
         public string $name

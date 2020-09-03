@@ -51,4 +51,33 @@ class Connection
     {
         return Connection::fromConfig(DB_CONFIG);
     }
+
+    public static function convertArrayInString(array $data)
+    {
+        $sql = "";
+
+        $sql .= "`{$data['name']}` {$data['type']}({$data['length']}) ";
+
+        if ($data['nullable'] ?? true) {
+            $sql .= "NOT NULL ";
+        }
+
+        if ($data['primary'] ?? false) {
+            $sql .= "PRIMARY KEY ";
+        }
+
+        if ($data['autoIncrement'] ?? false) {
+            $sql .= "AUTO_INCREMENT ";
+        }
+
+        if ($data['unique'] ?? false) {
+            $sql .= "UNIQUE ";
+        }
+
+        if (isset($data['default'])) {
+            $sql .= "DEFAULT '{$data['default']}' ";
+        }
+
+        return $sql;
+    }
 }
