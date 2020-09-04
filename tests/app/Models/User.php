@@ -3,14 +3,14 @@
 namespace App\Models;
 
 use Accolon\Izanagi\Attributes\{
-    Entity,
+    Table,
     Field
 };
 use Accolon\Izanagi\Types\FieldType;
-use Accolon\Izanagi\BaseEntity;
+use Accolon\Izanagi\Entity;
 
-@@Entity(name: "users")
-class User extends BaseEntity
+@@Table(name: "users")
+class User extends Entity
 {
     @@Field(
         type: FieldType::Integer,
@@ -22,10 +22,21 @@ class User extends BaseEntity
 
     @@Field(
         type: FieldType::String,
-        length: 30,
-        default: "oi"
+        length: 30
     )
     private string $name;
+
+    @@Field(
+        type: FieldType::String,
+        length: 30,
+    )
+    private string $password;
+
+    @@Field(type: FieldType::Boolean)
+    public bool $admin;
+
+    @@Field(type: FieldType::Float, length: 10.2, default: 0.0)
+    private float $price;
 
     public function __construct(string $name)
     {

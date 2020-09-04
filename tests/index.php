@@ -1,5 +1,6 @@
 <?php
 
+use Accolon\Izanagi\Manager;
 use App\Models\User;
 
 function autoload($dir = "./")
@@ -33,5 +34,8 @@ define("DB_CONFIG", [
     'driver' => "sqlite"
 ]);
 
-$user = new User("Test");
-var_dump($user->getFields());
+$manager = new Manager([
+    User::class
+]);
+
+$manager->migrate();

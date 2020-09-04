@@ -3,7 +3,7 @@
 namespace Accolon\Izanagi\Attributes;
 
 @@Attribute
-class Entity
+class Table
 {
     public function __construct(
         public string $name
