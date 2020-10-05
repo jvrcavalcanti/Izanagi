@@ -2,7 +2,7 @@
 
 namespace Accolon\Izanagi\Attributes;
 
-@@Attribute
+#[Attribute]
 class Field
 {
     public function __construct(
@@ -14,6 +14,6 @@ class Field
         public bool $primary = false,
         public bool $autoIncrement = false,
     ) {
-        //
+        $this->type = $type;
     }
 }

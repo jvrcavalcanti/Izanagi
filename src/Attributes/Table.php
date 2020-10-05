@@ -2,7 +2,7 @@
 
 namespace Accolon\Izanagi\Attributes;
 
-@@Attribute
+#[Attribute]
 class Table
 {
     public function __construct(
