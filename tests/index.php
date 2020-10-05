@@ -1,7 +1,14 @@
 <?php
 
 use Accolon\Izanagi\Manager;
+use Accolon\Izanagi\QueryBuilder;
 use App\Models\User;
+
+function dd($var)
+{
+    var_dump($var);
+    die();
+}
 
 function autoload($dir = "./")
 {
@@ -38,4 +45,8 @@ $manager = new Manager([
     User::class
 ]);
 
-$manager->migrate();
+// $manager->migrate();
+
+$qb = new QueryBuilder('users');
+$qb->whereIn('id', [1,2, 3]);
+dd($qb->select());
