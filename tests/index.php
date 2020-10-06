@@ -48,5 +48,6 @@ $manager = new Manager([
 // $manager->migrate();
 
 $qb = new QueryBuilder('users');
-$qb->whereIn('id', [1,2, 3]);
-dd($qb->select());
+dd($qb->where('like', '>', 10)->update([
+    'name' => 'John'
+]));
