@@ -13,23 +13,14 @@ use Accolon\Izanagi\Entity;
 class User extends Entity
 {
     #[Field(type: FieldType::Integer, primary: true, length: 11, autoIncrement: true)]
-    private int $id;
+    public int $id;
 
     #[Field(type: FieldType::String, length: 30)]
-    private string $name;
+    public string $name;
 
     #[Field(type: FieldType::String, length: 30)]
-    private string $password;
+    public string $password;
 
     #[Field(type: FieldType::Boolean)]
     public bool $admin;
-
-    #[Field(type: FieldType::Float, length: 10.2, default: 0.0)]
-    private float $price;
-
-    public function __construct(string $name)
-    {
-        parent::__construct();
-        $this->name = $name;
-    }
 }

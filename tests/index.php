@@ -47,7 +47,8 @@ $manager = new Manager([
 
 // $manager->migrate();
 
-$qb = new QueryBuilder('users');
-dd($qb->where('like', '>', 10)->update([
-    'name' => 'John'
-]));
+$user = new User();
+$user->name = 'kk';
+$user->password = '123';
+$user->admin = true;
+dd($user->findAll());

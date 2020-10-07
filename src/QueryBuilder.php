@@ -11,6 +11,7 @@ final class QueryBuilder
     private string $where = "";
     private array $params = [];
     private string $limit = "";
+    private string $offset = "";
 
     public function __construct(string $table, ?Connection $connection = null)
     {
@@ -40,7 +41,7 @@ final class QueryBuilder
         if ($this->where === "") {
             $this->where = "WHERE ";
         } else {
-            $this->where .= " AND ";
+            $this->where .= "AND ";
         }
         
         if (sizeof($params) == 2) {
@@ -56,7 +57,7 @@ final class QueryBuilder
             $value = ":{$col}";
         }
 
-        $this->where .= "{$col} {$exp} {$value} ";
+        $this->where .= "`{$col}` {$exp} {$value} ";
 
         return $this;
     }
@@ -66,7 +67,7 @@ final class QueryBuilder
         if ($this->where === "") {
             $this->where = "WHERE ";
         } else {
-            $this->where .= " AND ";
+            $this->where .= "AND ";
         }
         
         if (sizeof($params) == 2) {
@@ -77,7 +78,7 @@ final class QueryBuilder
             $value = ":{$col}";
         }
 
-        $this->where .= "{$col} {$exp} {$value} ";
+        $this->where .= "`{$col}` {$exp} {$value} ";
 
         return $this;
     }
@@ -87,7 +88,7 @@ final class QueryBuilder
         if ($this->where === "") {
             $this->where = "WHERE ";
         } else {
-            $this->where .= " OR ";
+            $this->where .= "OR ";
         }
         
         if (sizeof($params) == 2) {
@@ -103,7 +104,7 @@ final class QueryBuilder
             $value = ":{$col}";
         }
 
-        $this->where .= "{$col} {$exp} {$value} ";
+        $this->where .= "`{$col}` {$exp} {$value} ";
 
         return $this;
     }
@@ -114,13 +115,13 @@ final class QueryBuilder
         return $this;
     }
 
-    public function select($cols = ['*'], int $fetch = \PDO::FETCH_LAZY)
+    public function select($cols = ['*'])
     {
         $cols = sizeof($cols) > 1 ? implode(',', $cols) : $cols[0];
         $this->statement = "SELECT {$cols} FROM `{$this->table}` ";
 
         [$_success, $stmt] = $this->execute($this->statement . $this->where . $this->limit . $this->offset);
-        return $stmt->fetch($fetch);
+        return $stmt;
     }
 
     public function update(array $datas): bool
