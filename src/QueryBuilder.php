@@ -24,6 +24,23 @@ final class QueryBuilder
         }
     }
 
+    public function clear()
+    {
+        foreach ($this as $attr => $_) {
+            if ($attr === 'table') {
+                continue;
+            }
+
+            if (is_string($this->$attr)) {
+                $this->$attr = "";
+            }
+
+            if (is_array($this->$attr)) {
+                $this->$attr = [];
+            }
+        }
+    }
+
     public function limit(int $limit)
     {
         $this->limit = "LIMIT {$limit} ";
@@ -131,7 +148,7 @@ final class QueryBuilder
         $cols = [];
 
         foreach ($datas as $col => $value) {
-            $cols[] = "{$col} = :{$col}";
+            $cols[] = "`{$col}` = :{$col}";
             $this->addParam(":{$col}", $value);
         }
 
@@ -152,7 +169,7 @@ final class QueryBuilder
         $values = [];
 
         foreach ($datas as $col => $value) {
-            $cols[] = $col;
+            $cols[] = "`$col`";
             $values[] = ":{$col}";
             $this->addParam(":{$col}", $value);
         }
@@ -169,7 +186,7 @@ final class QueryBuilder
 
     public function delete(): bool
     {
-        $this->statement = "DELETE FROM `{$this->table}`";
+        $this->statement = "DELETE FROM `{$this->table}` ";
 
         [$success, $_stmt] = $this->execute($this->statement . $this->where);
 
@@ -182,14 +199,8 @@ final class QueryBuilder
         dd($sql);
         $db = $this->connection->getInstance();
         $stmt = $db->prepare($sql);
-        return [$stmt->execute($this->params), $stmt];
+        $result = $stmt->execute($this->params);
+        $this->clear();
+        return [$result, $stmt];
     }
-
-    // final public static function __callStatic( $chrMethod, $arrArguments ) {
-           
-    //     $objInstance = self::getInstance();
-       
-    //     return call_user_func_array(array($objInstance, $chrMethod), $arrArguments);
-       
-    // }
 }

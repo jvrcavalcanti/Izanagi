@@ -51,4 +51,4 @@ $user = new User();
 $user->name = 'kk';
 $user->password = '123';
 $user->admin = true;
-dd($user->findAll());
+dd($user->save());
