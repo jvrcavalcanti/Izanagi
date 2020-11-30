@@ -1,0 +1,19 @@
+{
+    "name": "jvrcavalcanti/izanagi",
+    "description": "ORM for PHP8",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "jvrcavalcanti",
+            "email": "jonnyvictor01@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Accolon\\Izanagi\\": "src/"
+        }
+    }
+}

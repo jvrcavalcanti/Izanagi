@@ -195,8 +195,6 @@ final class QueryBuilder
 
     private function execute(string $sql)
     {
-        var_dump($this);
-        dd($sql);
         $db = $this->connection->getInstance();
         $stmt = $db->prepare($sql);
         $result = $stmt->execute($this->params);

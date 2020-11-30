@@ -47,12 +47,23 @@ abstract class Entity
         ));
     }
 
-    public function getPropertiesInitializeds()
+    public function getNamesPropertiesInitializeds()
     {
         return array_filter(
             $this->getProperties(),
             fn(string $prop) => $this->isInitialized($prop)
         );
+    }
+
+    public function getPropertiesInitializeds()
+    {
+        $props = [];
+
+        foreach ($this->getNamesPropertiesInitializeds() as $name) {
+            $props[$name] = $this->$name;
+        }
+
+        return $props;
     }
 
     public function getPropertiesProtected()
@@ -71,15 +82,15 @@ abstract class Entity
 
     public function __get($name)
     {
-        if (!in_array($name, $this->getPropertiesProtected())) {
+        if (in_array($name, $this->getPropertiesProtected())) {
             return $this->$name;
         }
     }
 
     public function __set($name, $value)
     {
-        if (!in_array($name, $this->getPropertiesProtected())) {
-            return $this->$name = $value;
+        if (in_array($name, $this->getPropertiesProtected())) {
+            $this->$name = $value;
         }
     }
 
@@ -87,7 +98,7 @@ abstract class Entity
 
     protected function find(array $cols)
     {
-        $props = $this->getPropertiesInitializeds();
+        $props = $this->getNamesPropertiesInitializeds();
 
         foreach ($props as $prop) {
             $this->qb->where($prop, $this->$prop);
@@ -104,19 +115,30 @@ abstract class Entity
 
     public function findAll(array $cols = [])
     {
-        return $this->find($cols)->fetchAll();
+        return array_map(fn($entity) => (new static)->persist($entity), $this->find($cols)->fetchAll());
     }
 
     public function findOne(array $cols = []): ?object
     {
-        return $this->find($cols)->fetchObject();
+        return $this->persist($this->find($cols)->fetchObject());
     }
 
-    public static function findById($id, array $cols = [])
+    public static function findId($id, array $cols = [])
     {
         $obj = new static();
         $obj->qb->where('id', $id);
-        return $obj->findOne($cols);
+        $obj->persist($obj->findOne($cols));
+        return $obj;
+        
+    }
+
+    public function persist($data)
+    {
+        foreach ($data as $key => $value) {
+            $this->$key = $value;
+        }
+
+        return $this;
     }
 
     public function exists()
@@ -126,7 +148,7 @@ abstract class Entity
 
     public function create()
     {
-        $props = $this->getPropertiesInitializeds();
+        $props = $this->getNamesPropertiesInitializeds();
         $params = [];
 
         foreach ($props as $prop) {
@@ -138,7 +160,7 @@ abstract class Entity
 
     public function update(array $set)
     {
-        $props = $this->getPropertiesInitializeds();
+        $props = $this->getNamesPropertiesInitializeds();
 
         foreach ($props as $prop) {
             $this->qb->where($prop, $this->$prop);
@@ -149,7 +171,7 @@ abstract class Entity
 
     public function delete()
     {
-        $props = $this->getPropertiesInitializeds();
+        $props = $this->getNamesPropertiesInitializeds();
 
         foreach ($props as $prop) {
             $this->qb->where($prop, $this->$prop);
@@ -158,12 +180,16 @@ abstract class Entity
         return $this->qb->delete();
     }
 
-    public function save(array $set = [])
+    public function save()
     {
         if (!$this->exists) {
             return $this->create();
         }
 
-        return $this->update($set);
+        $primaryKey = $this->primaryKey;
+
+        $this->qb->where($primaryKey, $this->$primaryKey);
+
+        return $this->qb->update($this->getPropertiesInitializeds());
     }
 }

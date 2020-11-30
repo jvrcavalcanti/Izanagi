@@ -2,10 +2,8 @@
 
 namespace Accolon\Izanagi;
 
-use Accolon\Izanagi\Attributes\{
-    Field,
-    Table
-};
+use Accolon\Izanagi\Attributes\Field;
+use Accolon\Izanagi\Attributes\Table;
 use Accolon\Izanagi\Types\FieldType;
 
 class Manager
@@ -96,7 +94,7 @@ class Manager
 
             $connection = $connection->getInstance();
 
-            // $connection->prepare("DROP IF EXISTS `{$tableName}`;")->execute();
+            $connection->prepare("DROP TABLE IF EXISTS `{$tableName}`;")->execute();
 
             $sql = "CREATE TABLE IF NOT EXISTS `{$tableName}`(";
 
@@ -108,9 +106,7 @@ class Manager
 
             $sql .= implode(", ", $fields) . ");";
 
-            var_dump($sql);
-
-            // $connection->prepare($sql)->execute();
+            $connection->prepare($sql)->execute();
         }
     }
 }

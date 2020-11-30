@@ -1,5 +1,7 @@
 <?php
 
+require "./vendor/autoload.php";
+
 use Accolon\Izanagi\Manager;
 use Accolon\Izanagi\QueryBuilder;
 use App\Models\User;
@@ -31,14 +33,13 @@ function autoload($dir = "./")
     }
 }
 
-autoload("./src");
 autoload("./tests");
 
 define("DB_CONFIG", [
-    'name' => "pendragon",
+    'name' => "izanagi",
     'user' => "accolon",
     'password' => 'password',
-    'driver' => "sqlite"
+    'driver' => "mysql"
 ]);
 
 $manager = new Manager([
@@ -47,8 +48,5 @@ $manager = new Manager([
 
 // $manager->migrate();
 
-$user = new User();
-$user->name = 'kk';
-$user->password = '123';
-$user->admin = true;
-dd($user->save());
+$user = new User;
+dd($user->findAll());
