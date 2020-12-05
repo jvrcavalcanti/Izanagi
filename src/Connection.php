@@ -13,20 +13,24 @@ class Connection
         string $user,
         string $password,
         string $driver = "mysql",
-        string $host = "localhost",
+        string $host = '127.0.0.1',
         int $port = 3306,
-        string $charset = "uft8"
+        string $charset = "uft8",
+        ?string $sock = null
     ) {
+        $string = "{$driver}";
+
         if ($driver == "sqlite") {
-            $this->instance = new PDO("{$driver}:{$name}");
-            return;
+            $string .= ":{$name}";
+        } else {
+            $string .= ":host={$host}:{$port};dbname={$name};charset={$charset}";
         }
-        
-        $this->instance = new PDO(
-            "{$driver}:host={$host};dbname={$name};port={$port};charset={$charset}",
-            $user,
-            $password
-        );
+
+        if (!is_null($sock)) {
+            $string .= ";unix_socket={$sock}";
+        }
+
+        $this->instance = new PDO($string, $user, $password);
     }
 
     public function getInstance()
@@ -40,10 +44,11 @@ class Connection
             name: $config['name'],
             user: $config['user'],
             password: $config['password'],
-            driver: $config['driver'] ?? "mysql",
-            host: $config['host'] ?? "localhost",
+            driver: $config['driver'] ?? 'mysql',
+            host: $config['host'] ?? '127.0.0.1',
             port: $config['port'] ?? 3306,
-            charset: $config['charset'] ?? "utf8"
+            charset: $config['charset'] ?? 'utf8',
+            sock: $config['sock'] ?? null
         );
     }
 

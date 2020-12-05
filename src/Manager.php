@@ -54,7 +54,7 @@ class Manager
         $sql .= match($data['type']) {
             FieldType::String => "`{$data['name']}` VARCHAR({$data['length']}) ",
             FieldType::Integer => "`{$data['name']}` INT({$data['length']}) ",
-            FieldType::Boolean => "`{$data['name']}` TINYINT(1) ",
+            FieldType::Boolean => "`{$data['name']}` BOOLEAN ",
             FieldType::Float => "`{$data['name']}` FLOAT({$length1}, {$length2}) ",
             FieldType::Date => "`{$data['name']}` DATE "
         };

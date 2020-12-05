@@ -5,6 +5,7 @@ require "./vendor/autoload.php";
 use Accolon\Izanagi\Manager;
 use Accolon\Izanagi\QueryBuilder;
 use App\Models\User;
+use App\Repositories\UserRepository;
 
 function dd($var)
 {
@@ -37,9 +38,8 @@ autoload("./tests");
 
 define("DB_CONFIG", [
     'name' => "izanagi",
-    'user' => "accolon",
-    'password' => 'password',
-    'driver' => "mysql"
+    'user' => "root",
+    'password' => 'pass'
 ]);
 
 $manager = new Manager([
@@ -48,5 +48,16 @@ $manager = new Manager([
 
 // $manager->migrate();
 
-$user = new User;
-dd($user->findAll());
+$repository = new UserRepository();
+
+$user = new User();
+$user->name = 'Roi';
+
+dd(
+    // $repository->save($user)
+);
+
+
+
+// $user = new User;
+// dd($user->findAll());

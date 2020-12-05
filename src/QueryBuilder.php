@@ -128,6 +128,9 @@ final class QueryBuilder
 
     public function addParam($key, $param)
     {
+        if (is_bool($param)) {
+            $param = $param ? '1' : '0';
+        }
         $this->params[$key] = $param;
         return $this;
     }
@@ -148,8 +151,8 @@ final class QueryBuilder
         $cols = [];
 
         foreach ($datas as $col => $value) {
-            $cols[] = "`{$col}` = :{$col}";
-            $this->addParam(":{$col}", $value);
+            $cols[] = "`{$col}` = :set{$col}";
+            $this->addParam(":set{$col}", $value);
         }
 
         $cols = implode(', ', $cols);
@@ -195,8 +198,10 @@ final class QueryBuilder
 
     private function execute(string $sql)
     {
+        // dd($sql);
         $db = $this->connection->getInstance();
         $stmt = $db->prepare($sql);
+        // dd($this->params);
         $result = $stmt->execute($this->params);
         $this->clear();
         return [$result, $stmt];
