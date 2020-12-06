@@ -19,41 +19,7 @@ abstract class Repository
         }
 
         $this->connection = $connection;
-        $this->qb = new QueryBuilder($this->entity->getTableName());
-    }
-
-    public function create(Entity $entity)
-    {
-        $props = $entity->getPropertiesInitializeds();
-        $params = [];
-
-        foreach ($props as $name => $prop) {
-            $params[$name] = $prop;
-        }
-
-        return $this->qb->insert($params);
-    }
-
-    public function update(Entity $entity, array $set)
-    {
-        $props = $entity->getPropertiesInitializeds();
-
-        foreach ($props as $name => $prop) {
-            $this->qb->where($name, $prop);
-        }
-
-        return $this->qb->update($set);
-    }
-
-    public function delete(Entity $entity)
-    {
-        $props = $entity->getPropertiesInitializeds();
-
-        foreach ($props as $name => $prop) {
-            $this->qb->where($name, $prop);
-        }
-
-        return $this->qb->delete();
+        $this->qb = new QueryBuilder($this->entity->getTableName(), $connection);
     }
 
     // Query
@@ -66,11 +32,10 @@ abstract class Repository
         );
     }
 
-    public function find($id, string ...$cols)
+    public function find($id, string ...$cols): ?Entity
     {
-        return (new $this->class)->build(
-            $this->qb->where($this->entity->primaryKey, $id)->select(empty($cols) ? ['*'] : $cols)->fetchObject()
-        );
+        $result = $this->qb->where($this->entity->primaryKey, $id)->select(empty($cols) ? ['*'] : $cols)->fetchObject();
+        return $result ? (new $this->class)->build($result) : null;
     }
 
     public function findOne(array $props, string ...$cols): ?Entity
@@ -102,6 +67,6 @@ abstract class Repository
             $this->qb->where($name, $value);
         }
 
-        return (bool) count($this->qb->select()->fetchAll());
+        return (bool) $this->qb->select()->rowCount();
     }
 }

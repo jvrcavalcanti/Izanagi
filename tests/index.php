@@ -51,11 +51,17 @@ $manager = new Manager([
 $repository = new UserRepository();
 
 $user = new User();
-$user->name = 'Roi';
+$user->name = 'Sla';
+$user->password = 'd2k';
+$user->admin = false;
 
-dd(
-    // $repository->save($user)
-);
+$user->create();
+var_dump($user);
+
+$user->update(['admin' => true]);
+var_dump($user);
+
+$user->delete();
 
 
 

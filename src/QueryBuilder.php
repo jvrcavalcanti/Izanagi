@@ -159,12 +159,12 @@ final class QueryBuilder
 
         $this->statement .= "{$cols} ";
 
-        [$success, $_stmt] = $this->execute($this->statement . $this->where);
+        [$_success, $_stmt, $count] = $this->execute($this->statement . $this->where);
 
-        return $success;
+        return !!$count;
     }
 
-    public function insert(array $datas): bool
+    public function insert(array $datas)
     {
         $this->statement = "INSERT INTO `{$this->table}` ";
 
@@ -182,18 +182,19 @@ final class QueryBuilder
 
         $this->statement .= "({$cols}) VALUES ({$values})";
 
-        [$success, $_stmt] = $this->execute($this->statement);
+        $result = $this->execute($this->statement);
+        $result[] = $this->connection->getInstance()->lastInsertId();
 
-        return $success;
+        return $result;
     }
 
     public function delete(): bool
     {
         $this->statement = "DELETE FROM `{$this->table}` ";
 
-        [$success, $_stmt] = $this->execute($this->statement . $this->where);
+        [$_success, $_stmt, $count] = $this->execute($this->statement . $this->where);
 
-        return $success;
+        return !!$count;
     }
 
     private function execute(string $sql)
@@ -204,6 +205,6 @@ final class QueryBuilder
         // dd($this->params);
         $result = $stmt->execute($this->params);
         $this->clear();
-        return [$result, $stmt];
+        return [$result, $stmt, $stmt->rowCount()];
     }
 }
