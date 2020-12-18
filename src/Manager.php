@@ -9,10 +9,17 @@ use Accolon\Izanagi\Types\FieldType;
 class Manager
 {
     private array $entities = [];
+    private Connection $connection;
 
-    public function __construct(array $entities = [])
+    public function __construct(array $entities = [], ?Connection $connection = null)
     {
         $this->entities = $entities;
+
+        if (is_null($connection)) {
+            $connection = Connection::fromConstDBConfig();
+        }
+
+        $this->connection = $connection;
     }
 
     public function addEntity(Entity $entity)
@@ -24,7 +31,7 @@ class Manager
     {
         return $reflector
                     ->getAttributes(Table::class)[0]
-                    ->getArguments()['name'];
+                    ->newInstance()->name;
     }
 
     public function getFields(\ReflectionClass $reflector)
@@ -32,9 +39,9 @@ class Manager
         return array_map(
             function (\ReflectionProperty $reflectorProp) {
                 $data = $reflectorProp
-                            ->getAttributes(Field::class)[0]
-                            ->getArguments();
-                $data['name'] = $reflectorProp->getName();
+                            ->getAttributes(Field::class, \ReflectionAttribute::IS_INSTANCEOF)[0]
+                            ->newInstance();
+                $data->name = $reflectorProp->getName();
                 return $data;
             },
             $reflector->getProperties(
@@ -43,70 +50,76 @@ class Manager
         );
     }
 
-    private static function convertArrayInString(array $data)
+    private static function convertObjectInString(object $data)
     {
         $sql = "";
 
-        if ($data['type'] === FieldType::Float) {
-            [$length1, $length2] = explode(".", (string) $data['length']);
+        if ($data->type === FieldType::Float) {
+            [$length1, $length2] = explode(".", (string) $data->length);
         }
 
-        $sql .= match($data['type']) {
-            FieldType::String => "`{$data['name']}` VARCHAR({$data['length']}) ",
-            FieldType::Integer => "`{$data['name']}` INT({$data['length']}) ",
-            FieldType::Boolean => "`{$data['name']}` BOOLEAN ",
-            FieldType::Float => "`{$data['name']}` FLOAT({$length1}, {$length2}) ",
-            FieldType::Date => "`{$data['name']}` DATE "
+        $sql .= match($data->type) {
+            FieldType::String => "`{$data->name}` VARCHAR({$data->length}) ",
+            FieldType::Integer => "`{$data->name}` INT({$data->length}) ",
+            FieldType::Boolean => "`{$data->name}` BOOLEAN ",
+            FieldType::Float => "`{$data->name}` FLOAT({$length1}, {$length2}) ",
+            FieldType::Date => "`{$data->name}` DATE "
         };
 
-        if ($data['nullable'] ?? true) {
+        if (!$data->nullable) {
             $sql .= "NOT NULL ";
         }
 
-        if ($data['primary'] ?? false) {
+        if ($data->primary) {
             $sql .= "PRIMARY KEY ";
         }
 
-        if ($data['autoIncrement'] ?? false) {
+        if ($data->autoIncrement) {
             $sql .= "AUTO_INCREMENT ";
         }
 
-        if ($data['unique'] ?? false) {
+        if ($data->unique) {
             $sql .= "UNIQUE ";
         }
 
-        if (isset($data['default'])) {
-            $sql .= "DEFAULT '{$data['default']}' ";
+        if (!is_null($data->default)) {
+            $sql .= "DEFAULT '{$data->default}' ";
         }
 
         return $sql;
     }
 
-    public function migrate(?Connection $connection = null)
+    public function migrate()
     {
         foreach ($this->entities as $entity) {
-            $reflector = new \ReflectionClass($entity);
-            $tableName = $this->getTableName($reflector);
-
-            if (is_null($connection)) {
-                $connection = Connection::fromConstDBConfig();
-            }
-
-            $connection = $connection->getInstance();
-
-            $connection->prepare("DROP TABLE IF EXISTS `{$tableName}`;")->execute();
-
-            $sql = "CREATE TABLE IF NOT EXISTS `{$tableName}`(";
-
-            $fields = [];
-
-            foreach ($this->getFields($reflector) as $field) {
-                $fields[] = static::convertArrayInString($field);
-            }
-
-            $sql .= implode(", ", $fields) . ");";
-
-            $connection->prepare($sql)->execute();
+            $this->dropIfExists($entity);
+            $this->createIfExists($entity);
         }
+    }
+
+    public function dropIfExists(string $entity)
+    {
+        $reflector = new \ReflectionClass($entity);
+        $tableName = $this->getTableName($reflector);
+
+        $this->connection->getInstance()->prepare("DROP TABLE IF EXISTS `{$tableName}`;")->execute();
+    }
+
+    public function createIfExists(string $entity)
+    {
+        $reflector = new \ReflectionClass($entity);
+        $tableName = $this->getTableName($reflector);
+
+        $sql = "CREATE TABLE IF NOT EXISTS `{$tableName}`(";
+
+        $fields = [];
+
+        foreach ($this->getFields($reflector) as $field) {
+            $fields[] = static::convertObjectInString($field);
+        }
+
+        $sql .= implode(", ", $fields) . ");";
+
+        $this->connection->getInstance()->prepare($sql)->execute();
     }
 }

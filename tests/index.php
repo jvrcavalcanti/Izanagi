@@ -46,7 +46,9 @@ $manager = new Manager([
     User::class
 ]);
 
-// $manager->migrate();
+$manager->migrate();
+
+/*
 
 $repository = new UserRepository();
 
@@ -63,7 +65,4 @@ var_dump($user);
 
 $user->delete();
 
-
-
-// $user = new User;
-// dd($user->findAll());
+*/
