@@ -199,7 +199,7 @@ final class QueryBuilder
 
     private function execute(string $sql)
     {
-        // dd($sql);
+        // dd($sql);   
         $db = $this->connection->getInstance();
         $stmt = $db->prepare($sql);
         // dd($this->params);

@@ -15,5 +15,8 @@
         "psr-4": {
             "Accolon\\Izanagi\\": "src/"
         }
+    },
+    "scripts": {
+        "start": "php8.0 tests/index.php"
     }
 }

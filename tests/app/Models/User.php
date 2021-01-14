@@ -20,6 +20,6 @@ class User extends Entity
     #[StringField(40)]
     public string $password;
 
-    #[BooleanField]
+    #[BooleanField(false)]
     public bool $admin;
 }

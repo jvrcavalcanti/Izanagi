@@ -46,23 +46,16 @@ $manager = new Manager([
     User::class
 ]);
 
-$manager->migrate();
+// $manager->migrate();
 
-/*
 
 $repository = new UserRepository();
 
 $user = new User();
 $user->name = 'Sla';
 $user->password = 'd2k';
-$user->admin = false;
+$user->admin = true;
 
-$user->create();
-var_dump($user);
+dd(isset($user->name));
 
-$user->update(['admin' => true]);
-var_dump($user);
-
-$user->delete();
-
-*/
+$repository->save($user, ['admin' => false]);
